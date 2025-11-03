@@ -99,16 +99,13 @@ class DataSamplerDual:
         mode = 'diag' | 'proc'
         """
         assert mode in ["diag", "proc"], "mode must be 'diag' or 'proc'"
-        print(f"[DataSamplerDual] Sampling mode = {mode}")
 
         # chọn map tương ứng
         code_samples = self.code_samples_diag if mode == "diag" else self.code_samples_proc
-
         valid_codes = [c for c in target_codes if c in code_samples]
 
-        # 🩺 Nếu không tìm được mã hợp lệ — fallback ngẫu nhiên (KHÔNG raise lỗi)
+        # 🩺 Nếu không tìm được mã hợp lệ — fallback ngẫu nhiên, KHÔNG in ra
         if not valid_codes:
-            print(f"[Warning] No valid {mode} codes found → using random patient fallback.")
             rand_idx = np.random.randint(self.size)
             data_diag = torch.from_numpy(self.ehr_data_diag[[rand_idx]]).to(self.device, dtype=torch.float)
             data_proc = torch.from_numpy(self.ehr_data_proc[[rand_idx]]).to(self.device, dtype=torch.float)
@@ -121,6 +118,7 @@ class DataSamplerDual:
         data_proc = torch.from_numpy(self.ehr_data_proc[lines]).to(self.device, dtype=torch.float)
         lens = torch.from_numpy(self.lens[lines]).to(self.device, torch.long)
         return data_diag, data_proc, lens
+
 
 
     def __len__(self):
